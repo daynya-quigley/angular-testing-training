@@ -1,0 +1,21 @@
+<div class="container">
+  <app-user-status></app-user-status>
+</div>
+<ul class="nav justify-content-center">
+  <li class="nav-item" [routerLinkActive]="['link-active']">
+    <a
+    data-nav-course-home
+    [routerLink]="['home']" [routerLinkActive]="['active']" class="nav-link"
+      >Hypertheory Training</a
+    >
+  </li>
+  <li class="nav-item" [routerLinkActive]="['link-active']">
+    <a
+    data-nav-course-list
+      [routerLink]="['courses']"
+      [routerLinkActive]="['active']"
+      class="nav-link"
+      >Course List</a
+    >
+  </li>
+</ul>

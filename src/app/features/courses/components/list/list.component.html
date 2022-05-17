@@ -1,0 +1,47 @@
+<div
+*ngIf="(courses$ | async)?.length === 0"
+class="alert alert-info" data-courses-list-no-courses-notification>
+  <p>There are no upcoming courses!</p>
+</div>
+
+<div
+*ngIf="hasNotification$ | async"
+class="alert alert-danger" data-courses-list-error-courses-notification>
+  <p>The Course List API is hosed. Sorry. Try Again?</p>
+  <button class="btn">Retry</button>
+</div>
+<ul data-courses-list-component class="list-unstyled" *ngIf="courses$ | async as courses">
+  <li class="card" *ngFor="let course of courses;index as idx" [attr.data-courses-list-item]="idx">
+    <div class="card-header">
+      <span [attr.data-courses-list-item-header]="idx">{{ course.title }}</span>
+    </div>
+    <div class="card-body">
+      <div class="course-overview">
+        <span [attr.data-courses-list-item-overview]="idx">
+          {{ course.title }} is training for {{ course.category | titlecase}}
+
+        </span>
+      </div>
+      <p>
+        {{ course.blurb }}
+      </p>
+    </div>
+    <div class="card-footer" *ngrxLet="loggedIn$ as loggedIn">
+      <a
+      [attr.data-courses-list-item-enroll-link]="idx"
+        *ngIf="loggedIn"
+        class="btn btn-primary"
+        [routerLink]="['../enroll', course.id]"
+        >Enroll in {{ course.title }}</a
+      >
+      <a
+      [attr.data-courses-list-item-login-link]="idx"
+        *ngIf="!loggedIn"
+        class="btn btn-success"
+        (click)="login(course.id)"
+        [routerLink]="['../enroll', course.id]"
+        >Sign In to Enroll Now!</a
+      >
+    </div>
+  </li>
+</ul>
