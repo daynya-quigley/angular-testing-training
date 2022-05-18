@@ -13,9 +13,18 @@ export const RegistrationCommands = {
     '[courses] create registration',
     props<{ payload: RegistrationRequest }>()
   ),
+  loadRegistrations: createAction(
+    '[courses load registrations'
+  )
 };
 
 export const RegistrationDocuments = {
+
+  Registrations: createAction(
+    '[courses] registrations',
+    props<{ payload: RegistrationEntity[]}>()
+  ),
+
   Registration: createAction(
     '[courses] registration',
     props<{ payload: RegistrationEntity}>()

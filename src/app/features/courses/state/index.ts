@@ -8,7 +8,7 @@ import * as fromClasses from './reducers/classes.reducer';
 import * as fromNotifications from './reducers/feature-notification.reducer';
 import * as fromRegistrations from './reducers/registrations.reducer';
 
-import { CourseEnrollmentViewModel } from '../models';
+import { CourseEnrollmentViewModel, RegistrationsViewModel, RegistrationItemViewModel } from '../models';
 import { selectUserName } from '../../auth/state';
 import { RegistrationRequest } from './actions/registration.actions';
 export const featureName = 'featureCourses';
@@ -58,10 +58,10 @@ const {
   selectEntities: selectCourseEntities,
 } = fromCourses.adapter.getSelectors(selectCoursesBranch);
 
-const { selectEntities: selectAllClassesEntities } =
+const { selectEntities: selectAllClassesEntities, selectAll: selectAllClassesArray } =
   fromClasses.adapter.getSelectors(selectClassesBranch);
 
-export const selectAllCourses = selectAllCoursesArray;
+
 
 export const selectCourseById = (id: string) =>
   createSelector(selectCourseEntities, (entities) => entities[id]);
@@ -85,6 +85,7 @@ export const selectCourseAndUserForRegistration = (
     } as RegistrationRequest;
   });
 
+  export const selectAllCourses = selectAllCoursesArray;
 export const selectCourseEnrollmentViewModel = (courseId: string) =>
   createSelector(
     selectCourseEntities,
@@ -118,3 +119,63 @@ function daysBetween(start: string, end: string): number {
   const differenceInDays = diffInTime / (1000 * 3600 * 24);
   return differenceInDays;
 }
+
+const selectDateForRegistration = createSelector(
+  selectAllClassesArray,
+  (classes) => {
+    // this will stink.
+   // go through each class, and create a new item in an array with the id, the startDate, and the endDate
+   // such that the id and startDate are the "unique" parts.
+    const x = classes.reduce((lhs: ClassDateInfo[], rhs) => {
+      let smooshed = rhs.offerings.map(r => ({ startDate: r.startDate, endDate: r.endDate}));
+      let newThing:ClassDateInfo[] =smooshed.map(s => ({
+        id: rhs.id,
+        startDate: s.startDate,
+        endDate: s.endDate
+      }))
+      return [
+        ...lhs,
+       ...newThing
+
+      ]
+    }, [])
+    return x;
+  }
+)
+
+interface ClassDateInfo {
+  id: string;
+  startDate: string;
+  endDate: string;
+}
+const selectRegistrationItemViewModels = createSelector(
+  selectAllRegistrationEntities,
+  selectDateForRegistration,
+  (registrations, endDate) => {
+    return registrations.map(registration => {
+      const endDateInfo =  endDate.find(e => e.id === registration.courseId && e.startDate === registration.dateOfCourse)?.endDate;
+      return {
+        id: registration.registrationId,
+        courseName: registration.courseName,
+        startDate: registration.dateOfCourse,
+        endDate: endDateInfo,
+        cancellationAllowed: true,
+        endTime: '5:00 PM ET',
+        startTime: '9:30 AM ET',
+        invitationSent: false,
+        status: registration.status
+      } as RegistrationItemViewModel
+    })
+  }
+)
+
+export const selectRegistrationListViewModel = createSelector(
+  selectRegistrationItemViewModels,
+  (registrations) => {
+    console.log(registrations);
+    return {
+
+      registrations
+    } as RegistrationsViewModel;
+  }
+)

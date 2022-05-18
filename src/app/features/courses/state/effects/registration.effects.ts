@@ -15,6 +15,18 @@ import {
 @Injectable()
 export class RegistrationEffects {
 
+  loadRegistrations$ = createEffect(() => {
+    return this.actions$.pipe(
+      ofType(RegistrationCommands.loadRegistrations),
+      switchMap(() => this.http.get<{data: RegistrationEntity[]}>('/api/registrations')
+      .pipe(
+        map(({data}) => RegistrationDocuments.Registrations({ payload: data })
+        )
+      )
+      )
+    );
+  });
+
   sendThemToTheRegistrationPage$ = createEffect(() => {
     return this.actions$.pipe(
       ofType(RegistrationDocuments.Registration),
